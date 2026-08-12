@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --surface-hover: #f0f0ee;
+  --border: #e4e4e1;
+  --text: #1e2124;
+  --text-muted: #6b7076;
+  --primary: #3452c4;
+  --primary-hover: #2c46ac;
+  --primary-text: #ffffff;
+  --success: #0f9d6e;
+  --warning: #b3690a;
+  --danger: #d64545;
+}
+
+.dark {
+  --bg: #15171b;
+  --surface: #1c1f24;
+  --surface-hover: #23262c;
+  --border: #2b2f36;
+  --text: #e7e8ea;
+  --text-muted: #9aa0a8;
+  --primary: #6c8cff;
+  --primary-hover: #82a0ff;
+  --primary-text: #10141f;
+  --success: #34c58d;
+  --warning: #e0a038;
+  --danger: #f2665c;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 4px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
