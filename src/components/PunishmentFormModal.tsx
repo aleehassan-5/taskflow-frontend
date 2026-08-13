@@ -11,14 +11,6 @@ export interface PunishmentFormValues {
   status: PunishmentStatus;
 }
 
-const FUNNY_SUGGESTIONS = [
-  "Buys chai for the whole team ☕",
-  "Does 20 push-ups on video call 💪",
-  "Writes a public apology in the group chat 😔",
-  "No lunch break until task is done 🍽️",
-  "Has to wear a 'I missed a deadline' badge for a day 🏷️",
-];
-
 export function PunishmentFormModal({
   users,
   tasks,
@@ -101,14 +93,8 @@ export function PunishmentFormModal({
             className={inputClass}
             value={values.punishment}
             onChange={(e) => set("punishment", e.target.value)}
-            placeholder="e.g. Buys chai for the team"
-            list="funny-suggestions"
+            placeholder="Likho jo tum decide karo 😅"
           />
-          <datalist id="funny-suggestions">
-            {FUNNY_SUGGESTIONS.map((s) => (
-              <option key={s} value={s} />
-            ))}
-          </datalist>
         </div>
 
         <div>
