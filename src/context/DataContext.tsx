@@ -88,7 +88,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   async function handleCreate(values: TaskFormValues) {
     setSubmitting(true);
     try {
-      await api.tasks.create({
+      const { task } = await api.tasks.create({
         title: values.title,
         description: values.description || undefined,
         assignedToId: values.assignedToId || undefined,
@@ -100,7 +100,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           .map((t) => t.trim())
           .filter(Boolean),
       });
-      await refreshAll();
+      setTasks((prev) => [task, ...prev]);
+      // Task counts on the Team page depend on this, but nothing on screen right
+      // now is blocked by it, so don't make the user wait for it.
+      api.users.list().then(({ users }) => setUsers(users)).catch(() => {});
       showToast("Task created successfully");
       setAddOpen(false);
     } catch (e) {
@@ -114,7 +117,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (!editTarget) return;
     setSubmitting(true);
     try {
-      await api.tasks.update(editTarget.id, {
+      const { task } = await api.tasks.update(editTarget.id, {
         title: values.title,
         description: values.description || undefined,
         assignedToId: values.assignedToId || null,
@@ -125,10 +128,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           .map((t) => t.trim())
           .filter(Boolean),
       });
+      let finalTask = task;
       if (values.status !== editTarget.status) {
-        await api.tasks.setStatus(editTarget.id, values.status);
+        finalTask = (await api.tasks.setStatus(editTarget.id, values.status)).task;
       }
-      await refreshAll();
+      setTasks((prev) => prev.map((t) => (t.id === finalTask.id ? finalTask : t)));
+      if (values.status !== editTarget.status || values.assignedToId !== (editTarget.assignedTo?.id || "")) {
+        api.users.list().then(({ users }) => setUsers(users)).catch(() => {});
+      }
       showToast("Task updated successfully");
       setEditTarget(null);
     } catch (e) {
@@ -139,33 +146,41 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function changeStatus(task: Task, status: Status) {
+    // Feels instant; rolled back below if the request fails.
+    const prevTasks = tasks;
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status } : t)));
     try {
-      await api.tasks.setStatus(task.id, status);
-      await refreshAll();
+      const { task: updated } = await api.tasks.setStatus(task.id, status);
+      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      api.users.list().then(({ users }) => setUsers(users)).catch(() => {});
       showToast(status === "COMPLETED" ? "Task marked as completed" : "Task status updated");
     } catch (e) {
+      setTasks(prevTasks);
       showToast(e instanceof Error ? e.message : "Failed to update status", "error");
     }
   }
 
   async function moveTaskDate(task: Task, dueDate: string) {
     // Optimistically move the task locally so the calendar feels instant.
+    const prevTasks = tasks;
     setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, dueDate } : t)));
     try {
-      await api.tasks.update(task.id, { dueDate });
-      await refreshTasks();
+      const { task: updated } = await api.tasks.update(task.id, { dueDate });
+      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
       showToast("Task rescheduled");
     } catch (e) {
       showToast(e instanceof Error ? e.message : "Failed to reschedule task", "error");
-      await refreshTasks();
+      setTasks(prevTasks);
     }
   }
 
   async function handleDelete() {
     if (!deleteTarget) return;
+    const id = deleteTarget.id;
     try {
-      await api.tasks.remove(deleteTarget.id);
-      await refreshTasks();
+      await api.tasks.remove(id);
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+      api.users.list().then(({ users }) => setUsers(users)).catch(() => {});
       showToast("Task deleted");
     } catch (e) {
       showToast(e instanceof Error ? e.message : "Failed to delete task", "error");
