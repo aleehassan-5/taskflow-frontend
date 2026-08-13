@@ -12,6 +12,7 @@ import { MyTasks } from "./pages/MyTasks";
 import { AllTasks } from "./pages/AllTasks";
 import { Team } from "./pages/Team";
 import { Completed } from "./pages/Completed";
+import { Hiring } from "./pages/Hiring";
 import { Settings } from "./pages/Settings";
 
 function ProtectedApp() {
@@ -37,6 +38,7 @@ function ProtectedApp() {
           <Route path="/all-tasks" element={<AllTasks />} />
           <Route path="/team" element={<Team />} />
           <Route path="/completed" element={<Completed />} />
+          <Route path="/hiring" element={<Hiring />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

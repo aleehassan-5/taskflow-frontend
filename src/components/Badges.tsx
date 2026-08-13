@@ -1,5 +1,5 @@
 import React from "react";
-import type { Status, Priority } from "../types";
+import type { Status, Priority, HireStatus } from "../types";
 
 const STATUS_META: Record<Status, { label: string; dot: string; bg: string; text: string }> = {
   PENDING: { label: "Pending", dot: "bg-textMuted", bg: "bg-surfaceHover", text: "text-textMuted" },
@@ -55,6 +55,35 @@ export function Avatar({
   );
 }
 
+const HIRE_STATUS_META: Record<HireStatus, { label: string; dot: string; bg: string; text: string }> = {
+  INTERVIEWING: { label: "Interviewing", dot: "bg-primary", bg: "bg-primary/10", text: "text-primary" },
+  HIRED: { label: "Hired", dot: "bg-success", bg: "bg-success/10", text: "text-success" },
+  ONBOARDING: { label: "Onboarding", dot: "bg-warning", bg: "bg-warning/10", text: "text-warning" },
+  ACTIVE: { label: "Active", dot: "bg-success", bg: "bg-success/10", text: "text-success" },
+  ON_HOLD: { label: "On Hold", dot: "bg-textMuted", bg: "bg-surfaceHover", text: "text-textMuted" },
+  REJECTED: { label: "Rejected", dot: "bg-danger", bg: "bg-danger/10", text: "text-danger" },
+};
+
+export function HireStatusBadge({ status }: { status: HireStatus }) {
+  const meta = HIRE_STATUS_META[status];
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs font-medium ${meta.bg} ${meta.text}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+      {meta.label}
+    </span>
+  );
+}
+
 export const STATUS_OPTIONS: Status[] = ["PENDING", "IN_PROGRESS", "COMPLETED"];
 export const PRIORITY_OPTIONS: Priority[] = ["LOW", "MEDIUM", "HIGH"];
-export { STATUS_META, PRIORITY_META };
+export const HIRE_STATUS_OPTIONS: HireStatus[] = [
+  "INTERVIEWING",
+  "HIRED",
+  "ONBOARDING",
+  "ACTIVE",
+  "ON_HOLD",
+  "REJECTED",
+];
+export { STATUS_META, PRIORITY_META, HIRE_STATUS_META };

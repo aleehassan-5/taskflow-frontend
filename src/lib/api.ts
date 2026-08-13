@@ -1,4 +1,4 @@
-import type { Task, User, UserWithStats, Notification, Status, Priority } from "../types";
+import type { Task, User, UserWithStats, Notification, Status, Priority, Hire, HireStatus } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -67,6 +67,20 @@ export const api = {
     list: () => request<{ notifications: Notification[] }>("/notifications"),
     markRead: (id: string) => request<{ notification: Notification }>(`/notifications/${id}/read`, { method: "POST" }),
     markAllRead: () => request<{ ok: true }>("/notifications/read-all", { method: "POST" }),
+  },
+  hires: {
+    list: (params?: { status?: HireStatus; search?: string }) => {
+      const qs = new URLSearchParams();
+      if (params?.status) qs.set("status", params.status);
+      if (params?.search) qs.set("search", params.search);
+      const query = qs.toString();
+      return request<{ hires: Hire[] }>(`/hires${query ? `?${query}` : ""}`);
+    },
+    get: (id: string) => request<{ hire: Hire }>(`/hires/${id}`),
+    create: (data: Record<string, unknown>) => request<{ hire: Hire }>("/hires", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: Record<string, unknown>) =>
+      request<{ hire: Hire }>(`/hires/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    remove: (id: string) => request<{ ok: true }>(`/hires/${id}`, { method: "DELETE" }),
   },
 };
 

@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Users,
   CheckCircle2,
+  Briefcase,
   Settings,
   Sun,
   Moon,
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { to: "/all-tasks", label: "All Tasks", icon: ClipboardList },
   { to: "/team", label: "Team", icon: Users },
   { to: "/completed", label: "Completed", icon: CheckCircle2 },
+  { to: "/hiring", label: "Hiring", icon: Briefcase },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

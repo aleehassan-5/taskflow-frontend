@@ -1,6 +1,8 @@
 export type Role = "ADMIN" | "MEMBER";
 export type Status = "PENDING" | "IN_PROGRESS" | "COMPLETED";
 export type Priority = "LOW" | "MEDIUM" | "HIGH";
+export type HireStatus = "INTERVIEWING" | "HIRED" | "ONBOARDING" | "ACTIVE" | "ON_HOLD" | "REJECTED";
+export type CompensationType = "SALARY" | "PERCENTAGE";
 
 export interface User {
   id: string;
@@ -50,4 +52,21 @@ export interface Notification {
   taskId: string | null;
   read: boolean;
   createdAt: string;
+}
+
+export interface Hire {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  role: string;
+  compensationType: CompensationType;
+  compensationValue: number | null;
+  status: HireStatus;
+  source: string | null;
+  notes: string | null;
+  startDate: string | null;
+  addedBy: Pick<User, "id" | "name" | "avatar">;
+  createdAt: string;
+  updatedAt: string;
 }

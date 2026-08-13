@@ -35,3 +35,9 @@ export function isDueSoon(dueDate: string | null, status: string): boolean {
   const diff = new Date(dueDate).getTime() - Date.now();
   return diff > 0 && diff < 48 * 60 * 60 * 1000;
 }
+
+export function formatCompensation(type: "SALARY" | "PERCENTAGE", value: number | null): string {
+  if (value == null) return "—";
+  if (type === "PERCENTAGE") return `${value}%`;
+  return `Rs ${value.toLocaleString("en-PK")}`;
+}
