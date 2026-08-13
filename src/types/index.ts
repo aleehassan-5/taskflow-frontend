@@ -100,6 +100,7 @@ export interface Punishment {
   reason: string;
   punishment: string;
   status: PunishmentStatus;
+  dueDate: string | null;
   user: Pick<User, "id" | "name" | "avatar">;
   issuedBy: Pick<User, "id" | "name" | "avatar">;
   task: Pick<Task, "id" | "title"> | null;

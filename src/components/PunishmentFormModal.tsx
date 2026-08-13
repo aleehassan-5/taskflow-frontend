@@ -8,6 +8,7 @@ export interface PunishmentFormValues {
   reason: string;
   punishment: string;
   taskId: string;
+  dueDate: string;
   status: PunishmentStatus;
 }
 
@@ -29,6 +30,7 @@ export function PunishmentFormModal({
     reason: "",
     punishment: "",
     taskId: "",
+    dueDate: "",
     status: "PENDING",
   });
   const [error, setError] = useState<string | null>(null);
@@ -94,6 +96,16 @@ export function PunishmentFormModal({
             value={values.punishment}
             onChange={(e) => set("punishment", e.target.value)}
             placeholder="Likho jo tum decide karo 😅"
+          />
+        </div>
+
+        <div>
+          <label className={labelClass}>Due Date (optional)</label>
+          <input
+            type="date"
+            className={inputClass}
+            value={values.dueDate}
+            onChange={(e) => set("dueDate", e.target.value)}
           />
         </div>
 

@@ -1,19 +1,21 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Siren, Plus, Trash2, Check, HeartHandshake } from "lucide-react";
+import { Siren, Plus, Trash2, Check, HeartHandshake, CalendarClock } from "lucide-react";
 import { api } from "../lib/api";
 import { useToast } from "../context/ToastContext";
 import { useData } from "../context/DataContext";
+import { useAuth } from "../context/AuthContext";
 import { PunishmentFormModal, PunishmentFormValues } from "../components/PunishmentFormModal";
 import { ConfirmDialog } from "../components/Modal";
 import { PunishmentStatusBadge, PUNISHMENT_STATUS_OPTIONS, PUNISHMENT_STATUS_META } from "../components/Badges";
 import { EmptyState } from "../components/EmptyState";
 import { Avatar } from "../components/Badges";
-import { timeAgo } from "../lib/format";
+import { formatDate, timeAgo } from "../lib/format";
 import type { Punishment, PunishmentStatus } from "../types";
 
 export function Punishments() {
   const { showToast } = useToast();
   const { users, tasks } = useData();
+  const { user } = useAuth();
   const [punishments, setPunishments] = useState<Punishment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterUser, setFilterUser] = useState<string>("ALL");
@@ -56,6 +58,7 @@ export function Punishments() {
         reason: values.reason.trim(),
         punishment: values.punishment.trim(),
         taskId: values.taskId || undefined,
+        dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : undefined,
         status: values.status,
       });
       setPunishments((list) => [punishment, ...list]);
@@ -171,37 +174,54 @@ export function Punishments() {
                   <p className="mt-2 text-xs font-medium text-textMuted">Punishment</p>
                   <p className="text-sm font-medium text-primary">{p.punishment}</p>
 
+                  {p.dueDate && (
+                    <p
+                      className={`mt-2 flex items-center gap-1 text-xs ${
+                        p.status === "PENDING" && new Date(p.dueDate).getTime() < Date.now()
+                          ? "font-medium text-danger"
+                          : "text-textMuted"
+                      }`}
+                    >
+                      <CalendarClock size={13} />
+                      {p.status === "PENDING" && new Date(p.dueDate).getTime() < Date.now()
+                        ? `Overdue · was due ${formatDate(p.dueDate)}`
+                        : `Due ${formatDate(p.dueDate)}`}
+                    </p>
+                  )}
+
                   <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                     <p className="text-xs text-textMuted">
                       Issued by {p.issuedBy.name} · {timeAgo(p.createdAt)}
                     </p>
-                    <div className="flex items-center gap-1">
-                      {p.status !== "DONE" && (
+                    {p.issuedBy.id === user?.id && (
+                      <div className="flex items-center gap-1">
+                        {p.status !== "DONE" && (
+                          <button
+                            onClick={() => updateStatus(p, "DONE")}
+                            className="rounded p-1.5 text-textMuted hover:bg-success/10 hover:text-success"
+                            title="Mark done"
+                          >
+                            <Check size={15} />
+                          </button>
+                        )}
+                        {p.status === "PENDING" && (
+                          <button
+                            onClick={() => updateStatus(p, "FORGIVEN")}
+                            className="rounded p-1.5 text-textMuted hover:bg-surfaceHover hover:text-text"
+                            title="Forgive"
+                          >
+                            <HeartHandshake size={15} />
+                          </button>
+                        )}
                         <button
-                          onClick={() => updateStatus(p, "DONE")}
-                          className="rounded p-1.5 text-textMuted hover:bg-success/10 hover:text-success"
-                          title="Mark done"
+                          onClick={() => setDeleting(p)}
+                          className="rounded p-1.5 text-textMuted hover:bg-danger/10 hover:text-danger"
+                          title="Delete"
                         >
-                          <Check size={15} />
+                          <Trash2 size={15} />
                         </button>
-                      )}
-                      {p.status === "PENDING" && (
-                        <button
-                          onClick={() => updateStatus(p, "FORGIVEN")}
-                          className="rounded p-1.5 text-textMuted hover:bg-surfaceHover hover:text-text"
-                          title="Forgive"
-                        >
-                          <HeartHandshake size={15} />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => setDeleting(p)}
-                        className="rounded p-1.5 text-textMuted hover:bg-danger/10 hover:text-danger"
-                        title="Delete"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

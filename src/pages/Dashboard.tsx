@@ -1,18 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ListTodo, Clock, Loader2, CheckCircle2, Inbox } from "lucide-react";
+import { ListTodo, Clock, Loader2, CheckCircle2, Inbox, Siren } from "lucide-react";
 import { useData } from "../context/DataContext";
 import { StatCard } from "../components/StatCard";
-import { StatusBadge, PriorityBadge, Avatar } from "../components/Badges";
+import { StatusBadge, PriorityBadge, Avatar, PunishmentStatusBadge } from "../components/Badges";
 import { formatDate, timeAgo } from "../lib/format";
 import { SkeletonCard } from "../components/EmptyState";
 import { EmptyState } from "../components/EmptyState";
 import { api } from "../lib/api";
-import type { ActivityEntry } from "../types";
+import type { ActivityEntry, Punishment } from "../types";
+import { Link } from "react-router-dom";
 
 export function Dashboard() {
   const { tasks, loading, openTaskDetail } = useData();
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [activityLoading, setActivityLoading] = useState(true);
+  const [punishments, setPunishments] = useState<Punishment[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,6 +27,9 @@ export function Dashboard() {
       .finally(() => {
         if (!cancelled) setActivityLoading(false);
       });
+    api.punishments.list().then(({ punishments }) => {
+      if (!cancelled) setPunishments(punishments);
+    });
     return () => {
       cancelled = true;
     };
@@ -36,8 +41,23 @@ export function Dashboard() {
       pending: tasks.filter((t) => t.status === "PENDING").length,
       inProgress: tasks.filter((t) => t.status === "IN_PROGRESS").length,
       completed: tasks.filter((t) => t.status === "COMPLETED").length,
+      openPunishments: punishments.filter((p) => p.status === "PENDING").length,
     }),
-    [tasks]
+    [tasks, punishments]
+  );
+
+  const openPunishments = useMemo(
+    () =>
+      [...punishments]
+        .filter((p) => p.status === "PENDING")
+        .sort((a, b) => {
+          if (a.dueDate && b.dueDate) return +new Date(a.dueDate) - +new Date(b.dueDate);
+          if (a.dueDate) return -1;
+          if (b.dueDate) return 1;
+          return +new Date(b.createdAt) - +new Date(a.createdAt);
+        })
+        .slice(0, 5),
+    [punishments]
   );
 
   const recentTasks = useMemo(
@@ -59,11 +79,12 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <StatCard label="Total Tasks" value={stats.total} icon={ListTodo} tone="primary" />
         <StatCard label="Pending" value={stats.pending} icon={Clock} tone="default" />
         <StatCard label="In Progress" value={stats.inProgress} icon={Loader2} tone="warning" />
         <StatCard label="Completed" value={stats.completed} icon={CheckCircle2} tone="success" />
+        <StatCard label="Open Punishments" value={stats.openPunishments} icon={Siren} tone="warning" />
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -145,6 +166,49 @@ export function Dashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-surface shadow-card">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-text">Open Punishments</h2>
+          <Link to="/punishments" className="text-xs font-medium text-primary hover:underline">
+            View all
+          </Link>
+        </div>
+        {openPunishments.length === 0 ? (
+          <div className="p-4">
+            <EmptyState icon={Siren} title="No open punishments 😇" description="Everyone's behaving, for now." />
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {openPunishments.map((p) => {
+              const overdue = p.dueDate && new Date(p.dueDate).getTime() < Date.now();
+              return (
+                <Link
+                  key={p.id}
+                  to="/punishments"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-surfaceHover"
+                >
+                  <Avatar name={p.user.name} initials={p.user.avatar} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-text">{p.punishment}</p>
+                    <p className="truncate text-xs text-textMuted">
+                      {p.user.name} · {p.reason}
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <PunishmentStatusBadge status={p.status} />
+                    {p.dueDate && (
+                      <p className={`mt-1 text-xs ${overdue ? "font-medium text-danger" : "text-textMuted"}`}>
+                        {overdue ? "Overdue" : `Due ${formatDate(p.dueDate)}`}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
