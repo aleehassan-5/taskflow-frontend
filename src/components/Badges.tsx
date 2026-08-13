@@ -1,5 +1,5 @@
 import React from "react";
-import type { Status, Priority, HireStatus } from "../types";
+import type { Status, Priority, HireStatus, PunishmentStatus } from "../types";
 
 const STATUS_META: Record<Status, { label: string; dot: string; bg: string; text: string }> = {
   PENDING: { label: "Pending", dot: "bg-textMuted", bg: "bg-surfaceHover", text: "text-textMuted" },
@@ -86,4 +86,25 @@ export const HIRE_STATUS_OPTIONS: HireStatus[] = [
   "ON_HOLD",
   "REJECTED",
 ];
-export { STATUS_META, PRIORITY_META, HIRE_STATUS_META };
+
+const PUNISHMENT_STATUS_META: Record<PunishmentStatus, { label: string; dot: string; bg: string; text: string }> = {
+  PENDING: { label: "Pending 😅", dot: "bg-warning", bg: "bg-warning/10", text: "text-warning" },
+  DONE: { label: "Done ✅", dot: "bg-success", bg: "bg-success/10", text: "text-success" },
+  FORGIVEN: { label: "Forgiven 🙏", dot: "bg-textMuted", bg: "bg-surfaceHover", text: "text-textMuted" },
+};
+
+export function PunishmentStatusBadge({ status }: { status: PunishmentStatus }) {
+  const meta = PUNISHMENT_STATUS_META[status];
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs font-medium ${meta.bg} ${meta.text}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+      {meta.label}
+    </span>
+  );
+}
+
+export const PUNISHMENT_STATUS_OPTIONS: PunishmentStatus[] = ["PENDING", "DONE", "FORGIVEN"];
+
+export { STATUS_META, PRIORITY_META, HIRE_STATUS_META, PUNISHMENT_STATUS_META };

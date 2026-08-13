@@ -8,6 +8,7 @@ import {
   Users,
   CheckCircle2,
   Briefcase,
+  Siren,
   Settings,
   Sun,
   Moon,
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { to: "/team", label: "Team", icon: Users },
   { to: "/completed", label: "Completed", icon: CheckCircle2 },
   { to: "/hiring", label: "Hiring", icon: Briefcase },
+  { to: "/punishments", label: "Punishments", icon: Siren },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

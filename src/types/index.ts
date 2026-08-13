@@ -3,6 +3,7 @@ export type Status = "PENDING" | "IN_PROGRESS" | "COMPLETED";
 export type Priority = "LOW" | "MEDIUM" | "HIGH";
 export type HireStatus = "INTERVIEWING" | "HIRED" | "ONBOARDING" | "ACTIVE" | "ON_HOLD" | "REJECTED";
 export type CompensationType = "SALARY" | "PERCENTAGE";
+export type PunishmentStatus = "PENDING" | "DONE" | "FORGIVEN";
 
 export interface User {
   id: string;
@@ -90,6 +91,18 @@ export interface Hire {
   notes: string | null;
   startDate: string | null;
   addedBy: Pick<User, "id" | "name" | "avatar">;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Punishment {
+  id: string;
+  reason: string;
+  punishment: string;
+  status: PunishmentStatus;
+  user: Pick<User, "id" | "name" | "avatar">;
+  issuedBy: Pick<User, "id" | "name" | "avatar">;
+  task: Pick<Task, "id" | "title"> | null;
   createdAt: string;
   updatedAt: string;
 }

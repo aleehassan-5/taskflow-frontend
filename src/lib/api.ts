@@ -1,4 +1,4 @@
-import type { Task, User, UserWithStats, Notification, Status, Priority, Hire, HireStatus, CompensationRange, ActivityEntry } from "../types";
+import type { Task, User, UserWithStats, Notification, Status, Priority, Hire, HireStatus, CompensationRange, ActivityEntry, Punishment, PunishmentStatus } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -82,6 +82,20 @@ export const api = {
     update: (id: string, data: Record<string, unknown>) =>
       request<{ hire: Hire }>(`/hires/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
     remove: (id: string) => request<{ ok: true }>(`/hires/${id}`, { method: "DELETE" }),
+  },
+  punishments: {
+    list: (params?: { userId?: string; status?: PunishmentStatus }) => {
+      const qs = new URLSearchParams();
+      if (params?.userId) qs.set("userId", params.userId);
+      if (params?.status) qs.set("status", params.status);
+      const query = qs.toString();
+      return request<{ punishments: Punishment[] }>(`/punishments${query ? `?${query}` : ""}`);
+    },
+    create: (data: Record<string, unknown>) =>
+      request<{ punishment: Punishment }>("/punishments", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: Record<string, unknown>) =>
+      request<{ punishment: Punishment }>(`/punishments/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    remove: (id: string) => request<{ ok: true }>(`/punishments/${id}`, { method: "DELETE" }),
   },
   compensationRanges: {
     list: () => request<{ ranges: CompensationRange[] }>("/compensation-ranges"),
