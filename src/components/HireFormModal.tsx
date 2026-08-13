@@ -151,7 +151,7 @@ export function HireFormModal({
 
         {values.compensationType === "PERCENTAGE" && ranges.length > 0 && (
           <div>
-            <label className={labelClass}>Presets by client price range</label>
+            <label className={labelClass}>Presets</label>
             <div className="flex flex-wrap gap-1.5">
               {ranges.map((r) => {
                 const active = values.compensationValue === String(r.percentage);

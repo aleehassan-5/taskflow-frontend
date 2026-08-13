@@ -84,9 +84,9 @@ export const api = {
   },
   compensationRanges: {
     list: () => request<{ ranges: CompensationRange[] }>("/compensation-ranges"),
-    create: (data: { label: string; minValue: number; maxValue: number | null; percentage: number }) =>
+    create: (data: { label: string; isFlat: boolean; minValue: number | null; maxValue: number | null; percentage: number }) =>
       request<{ range: CompensationRange }>("/compensation-ranges", { method: "POST", body: JSON.stringify(data) }),
-    update: (id: string, data: Partial<{ label: string; minValue: number; maxValue: number | null; percentage: number }>) =>
+    update: (id: string, data: Partial<{ label: string; isFlat: boolean; minValue: number | null; maxValue: number | null; percentage: number }>) =>
       request<{ range: CompensationRange }>(`/compensation-ranges/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
     remove: (id: string) => request<{ ok: true }>(`/compensation-ranges/${id}`, { method: "DELETE" }),
   },
