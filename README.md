@@ -6,6 +6,8 @@ light/dark theme.
 
 Backend repo: [taskflow-backend](https://github.com/aleehassan-5/taskflow-backend)
 
+**Deploying?** See [DEPLOY.md in taskflow-backend](https://github.com/aleehassan-5/taskflow-backend/blob/main/DEPLOY.md) for step-by-step Supabase + Render + Vercel setup.
+
 ## Tech Stack
 
 - **Framework:** React + TypeScript + Vite
