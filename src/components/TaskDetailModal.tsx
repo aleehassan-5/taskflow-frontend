@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "./Modal";
 import type { Task, Status } from "../types";
 import { StatusBadge, PriorityBadge, Avatar } from "./Badges";
 import { formatDateTime } from "../lib/format";
 import { Edit2, Trash2, CheckCircle2 } from "lucide-react";
+import { api } from "../lib/api";
 
 export function TaskDetailModal({
   task,
@@ -18,6 +19,29 @@ export function TaskDetailModal({
   onDelete: () => void;
   onStatusChange: (status: Status) => void;
 }) {
+  // The list view only sends historyCount to keep things fast — fetch the full
+  // history here, on demand, only when someone actually opens this task.
+  const [history, setHistory] = useState<Task["history"]>(task.history);
+  const [historyLoading, setHistoryLoading] = useState(!task.history);
+
+  useEffect(() => {
+    if (task.history) return;
+    let cancelled = false;
+    setHistoryLoading(true);
+    api.tasks
+      .get(task.id)
+      .then(({ task: full }) => {
+        if (!cancelled) setHistory(full.history);
+      })
+      .finally(() => {
+        if (!cancelled) setHistoryLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task.id]);
+
   const infoRow = (label: string, value: React.ReactNode) => (
     <div>
       <p className="text-xs font-medium text-textMuted">{label}</p>
@@ -69,17 +93,25 @@ export function TaskDetailModal({
 
         <div>
           <p className="mb-2 text-xs font-medium text-textMuted">Activity History</p>
-          <div className="space-y-3 border-l border-border pl-4">
-            {task.history.map((h) => (
-              <div key={h.id} className="relative">
-                <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-primary" />
-                <p className="text-sm text-text">{h.action}</p>
-                <p className="text-xs text-textMuted">
-                  {h.by.name} · {formatDateTime(h.createdAt)}
-                </p>
-              </div>
-            ))}
-          </div>
+          {historyLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-8 animate-pulse rounded-md bg-surfaceHover" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3 border-l border-border pl-4">
+              {(history ?? []).map((h) => (
+                <div key={h.id} className="relative">
+                  <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-primary" />
+                  <p className="text-sm text-text">{h.action}</p>
+                  <p className="text-xs text-textMuted">
+                    {h.by.name} · {formatDateTime(h.createdAt)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4">

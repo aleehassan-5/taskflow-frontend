@@ -1,4 +1,4 @@
-import type { Task, User, UserWithStats, Notification, Status, Priority, Hire, HireStatus, CompensationRange } from "../types";
+import type { Task, User, UserWithStats, Notification, Status, Priority, Hire, HireStatus, CompensationRange, ActivityEntry } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -55,6 +55,7 @@ export const api = {
       return request<{ tasks: Task[] }>(`/tasks${query ? `?${query}` : ""}`);
     },
     get: (id: string) => request<{ task: Task }>(`/tasks/${id}`),
+    recentActivity: () => request<{ activity: ActivityEntry[] }>("/tasks/activity/recent"),
     create: (data: Partial<Task> & { title: string; assignedToId?: string }) =>
       request<{ task: Task }>("/tasks", { method: "POST", body: JSON.stringify(data) }),
     update: (id: string, data: Record<string, unknown>) =>

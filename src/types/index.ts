@@ -43,7 +43,18 @@ export interface Task {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  history: TaskHistoryEntry[];
+  // Populated on the single-task detail fetch. List fetches only include historyCount
+  // (via _count) to keep the list endpoint fast — fetch task detail for the full log.
+  history?: TaskHistoryEntry[];
+  _count?: { history: number };
+}
+
+export interface ActivityEntry {
+  id: string;
+  action: string;
+  createdAt: string;
+  by: Pick<User, "id" | "name" | "avatar">;
+  task: Pick<Task, "id" | "title">;
 }
 
 export interface Notification {
