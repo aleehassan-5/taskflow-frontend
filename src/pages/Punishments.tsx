@@ -69,25 +69,31 @@ export function Punishments() {
   }
 
   async function updateStatus(p: Punishment, status: PunishmentStatus) {
+    const previous = punishments;
+    // Optimistic update — reflect instantly, don't wait for the API round-trip
+    setPunishments((list) => list.map((x) => (x.id === p.id ? { ...x, status } : x)));
+    showToast(status === "DONE" ? "Justice served ✅" : status === "FORGIVEN" ? "Forgiven 🙏" : "Marked pending");
     try {
       const { punishment } = await api.punishments.update(p.id, { status });
       setPunishments((list) => list.map((x) => (x.id === punishment.id ? punishment : x)));
-      showToast(status === "DONE" ? "Justice served ✅" : status === "FORGIVEN" ? "Forgiven 🙏" : "Marked pending");
     } catch (e) {
+      setPunishments(previous);
       showToast(e instanceof Error ? e.message : "Failed to update", "error");
     }
   }
 
   async function handleDelete() {
     if (!deleting) return;
+    const target = deleting;
+    const previous = punishments;
+    setPunishments((list) => list.filter((p) => p.id !== target.id));
+    setDeleting(null);
     try {
-      await api.punishments.remove(deleting.id);
-      setPunishments((list) => list.filter((p) => p.id !== deleting.id));
+      await api.punishments.remove(target.id);
       showToast("Punishment removed");
     } catch (e) {
+      setPunishments(previous);
       showToast(e instanceof Error ? e.message : "Failed to remove", "error");
-    } finally {
-      setDeleting(null);
     }
   }
 
