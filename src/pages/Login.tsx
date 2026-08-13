@@ -68,10 +68,6 @@ export function Login() {
             {submitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
-
-        <p className="mt-4 text-center text-xs text-textMuted">
-          Demo accounts (seeded): ahsan@taskflow.dev · ali@taskflow.dev — password: password123
-        </p>
       </div>
     </div>
   );
