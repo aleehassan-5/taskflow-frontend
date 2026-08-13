@@ -11,6 +11,7 @@ export interface HireFormValues {
   role: string;
   compensationType: CompensationType;
   compensationValue: string;
+  compensationRangeIds: string[];
   status: HireStatus;
   source: string;
   notes: string;
@@ -35,6 +36,7 @@ export function HireFormModal({
     role: initial?.role || "",
     compensationType: initial?.compensationType || "SALARY",
     compensationValue: initial?.compensationValue != null ? String(initial.compensationValue) : "",
+    compensationRangeIds: initial?.compensationRangeIds || [],
     status: initial?.status || "INTERVIEWING",
     source: initial?.source || "",
     notes: initial?.notes || "",
@@ -54,6 +56,22 @@ export function HireFormModal({
 
   function set<K extends keyof HireFormValues>(key: K, value: HireFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
+  }
+
+  function togglePreset(range: CompensationRange) {
+    setValues((v) => {
+      const isSelected = v.compensationRangeIds.includes(range.id);
+      const nextIds = isSelected
+        ? v.compensationRangeIds.filter((id) => id !== range.id)
+        : [...v.compensationRangeIds, range.id];
+      // The most recently selected preset's percentage fills the number field,
+      // as a convenience — tags themselves are independent of that value.
+      return {
+        ...v,
+        compensationRangeIds: nextIds,
+        compensationValue: isSelected ? v.compensationValue : String(range.percentage),
+      };
+    });
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -151,22 +169,22 @@ export function HireFormModal({
 
         {values.compensationType === "PERCENTAGE" && ranges.length > 0 && (
           <div>
-            <label className={labelClass}>Presets</label>
+            <label className={labelClass}>Presets · tap to select, tap again to remove</label>
             <div className="flex flex-wrap gap-1.5">
               {ranges.map((r) => {
-                const active = values.compensationValue === String(r.percentage);
+                const active = values.compensationRangeIds.includes(r.id);
                 return (
                   <button
                     key={r.id}
                     type="button"
-                    onClick={() => set("compensationValue", String(r.percentage))}
+                    onClick={() => togglePreset(r)}
                     className={`rounded-full border px-2.5 py-1 text-xs font-medium ${
                       active
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border text-textMuted hover:bg-surfaceHover"
                     }`}
                   >
-                    {r.label} · {r.percentage}%
+                    {r.label} · {r.percentage}%{active ? " ×" : ""}
                   </button>
                 );
               })}

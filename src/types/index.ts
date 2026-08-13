@@ -73,6 +73,7 @@ export interface Hire {
   role: string;
   compensationType: CompensationType;
   compensationValue: number | null;
+  compensationRangeIds: string[];
   status: HireStatus;
   source: string | null;
   notes: string | null;

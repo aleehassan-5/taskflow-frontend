@@ -68,6 +68,7 @@ export function Hiring() {
       role: values.role.trim(),
       compensationType: values.compensationType,
       compensationValue: values.compensationValue ? Number(values.compensationValue) : undefined,
+      compensationRangeIds: values.compensationRangeIds,
       status: values.status,
       source: values.source.trim() || undefined,
       notes: values.notes.trim() || undefined,
