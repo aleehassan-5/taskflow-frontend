@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "./Modal";
-import type { Hire, HireStatus, CompensationType } from "../types";
+import type { Hire, HireStatus, CompensationType, CompensationRange } from "../types";
 import { HIRE_STATUS_OPTIONS, HIRE_STATUS_META } from "./Badges";
+import { api } from "../lib/api";
 
 export interface HireFormValues {
   name: string;
@@ -40,6 +41,16 @@ export function HireFormModal({
     startDate: initial?.startDate ? initial.startDate.slice(0, 10) : "",
   });
   const [error, setError] = useState<string | null>(null);
+  const [ranges, setRanges] = useState<CompensationRange[]>([]);
+
+  useEffect(() => {
+    api.compensationRanges
+      .list()
+      .then(({ ranges }) => setRanges(ranges))
+      .catch(() => {
+        // Presets are a convenience, not required to fill out the form manually.
+      });
+  }, []);
 
   function set<K extends keyof HireFormValues>(key: K, value: HireFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -137,6 +148,31 @@ export function HireFormModal({
             />
           </div>
         </div>
+
+        {values.compensationType === "PERCENTAGE" && ranges.length > 0 && (
+          <div>
+            <label className={labelClass}>Presets by client price range</label>
+            <div className="flex flex-wrap gap-1.5">
+              {ranges.map((r) => {
+                const active = values.compensationValue === String(r.percentage);
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => set("compensationValue", String(r.percentage))}
+                    className={`rounded-full border px-2.5 py-1 text-xs font-medium ${
+                      active
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border text-textMuted hover:bg-surfaceHover"
+                    }`}
+                  >
+                    {r.label} · {r.percentage}%
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>

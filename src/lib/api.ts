@@ -1,4 +1,4 @@
-import type { Task, User, UserWithStats, Notification, Status, Priority, Hire, HireStatus } from "../types";
+import type { Task, User, UserWithStats, Notification, Status, Priority, Hire, HireStatus, CompensationRange } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -81,6 +81,14 @@ export const api = {
     update: (id: string, data: Record<string, unknown>) =>
       request<{ hire: Hire }>(`/hires/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
     remove: (id: string) => request<{ ok: true }>(`/hires/${id}`, { method: "DELETE" }),
+  },
+  compensationRanges: {
+    list: () => request<{ ranges: CompensationRange[] }>("/compensation-ranges"),
+    create: (data: { label: string; minValue: number; maxValue: number | null; percentage: number }) =>
+      request<{ range: CompensationRange }>("/compensation-ranges", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: Partial<{ label: string; minValue: number; maxValue: number | null; percentage: number }>) =>
+      request<{ range: CompensationRange }>(`/compensation-ranges/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    remove: (id: string) => request<{ ok: true }>(`/compensation-ranges/${id}`, { method: "DELETE" }),
   },
 };
 

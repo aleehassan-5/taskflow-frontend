@@ -3,6 +3,7 @@ import { Sun, Moon, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { Avatar } from "../components/Badges";
+import { CompensationRangesSettings } from "../components/CompensationRangesSettings";
 
 export function Settings() {
   const { user, logout } = useAuth();
@@ -51,6 +52,8 @@ export function Settings() {
           </button>
         </div>
       </div>
+
+      <CompensationRangesSettings />
 
       <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
         <h2 className="text-sm font-semibold text-text">Session</h2>

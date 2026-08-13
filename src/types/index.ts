@@ -54,6 +54,16 @@ export interface Notification {
   createdAt: string;
 }
 
+export interface CompensationRange {
+  id: string;
+  label: string;
+  minValue: number;
+  maxValue: number | null;
+  percentage: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Hire {
   id: string;
   name: string;
