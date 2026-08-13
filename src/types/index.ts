@@ -57,7 +57,8 @@ export interface Notification {
 export interface CompensationRange {
   id: string;
   label: string;
-  minValue: number;
+  isFlat: boolean;
+  minValue: number | null;
   maxValue: number | null;
   percentage: number;
   createdAt: string;
